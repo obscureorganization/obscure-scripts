@@ -28,6 +28,12 @@ function finish {
 }
 trap finish EXIT
 
+services='ssh
+http
+https'
+# 5665/tcp is the Icinga2 api
+ports='5665/tcp'
+
 (
     zone=uptimerobot
     if ! firewall-cmd --list-all --zone "$zone"; then
@@ -36,8 +42,12 @@ trap finish EXIT
     fi
 
     for perm in "" "--permanent"; do
-        firewall-cmd --zone "$zone" --add-service ssh $perm
-        firewall-cmd --zone "$zone" --add-port 5665/tcp $perm # icinga2 api
+        for service in $services; do
+            firewall-cmd --zone "$zone" --add-service ssh $perm
+        done
+        for port in $ports; do
+            firewall-cmd --zone "$zone" --add-port "$port" $perm
+        done
         curl -s https://uptimerobot.com/inc/files/ips/IPv4andIPv6.txt | 
             sed 's/\r//g' | 
             while read source; do 
