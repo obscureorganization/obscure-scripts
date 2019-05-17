@@ -7,6 +7,9 @@
 # consider linking it into cron, for example:
 #
 #     sudo ln -s $PWD/uptimerobot-firewall-update.sh /etc/cron.weekly/
+#
+# Copyright (C) 2019 by The Obscure Organization
+# MIT licensed. See the LICENSE file for details.
 
 # Set unofficial bash strict mode http://redsymbol.net/articles/unofficial-bash-strict-mode/
 set -euo pipefail
