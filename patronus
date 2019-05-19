@@ -22,47 +22,60 @@
 #
 # 1.0.1 (May 19, 2019)
 #  Relicensed under the MIT license
+#
+# 1.0.2 (May 19, 2019)
+#  Lint fixes: now ShellCheck clean  (see https://www.shellcheck.net)
 
-retval=1
-MAGICAL_CREATURES=`mktemp -t patronus.XXXXXXXXXX` && {
-	FLOO_NETWORK=`mktemp -t patronus.XXXXXXXXXX` && {
-		
-		echo "Lumos!"
-		echo ""
+# Set unofficial bash strict mode http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail
+IFS=$'\n\t'
 
-        	ps x > $MAGICAL_CREATURES
+DEBUG=${DEBUG:-false}
 
-		FLOO_EXITS=`egrep " *$$" $MAGICAL_CREATURES | \
-			 awk '{print $2}'`
-		awk '!/ PID/{print $2}' < $MAGICAL_CREATURES | \
-			sort -u | 
-			egrep -v "^\?|$FLOO_EXITS" > $FLOO_NETWORK
-		DEMENTORS=`cat $FLOO_NETWORK`
-		if [ -z "$DEMENTORS" ] ; then
-			echo "No dementors spotted nearby."
-			retval=0
-		else
-			DEMENTOR_KISSES=`grep -f $FLOO_NETWORK < $MAGICAL_CREATURES | \
-				awk '{print $1}'`
-			DEMENTOR_DESCRIPTION=`ps u $DEMENTOR_KISSES`
+# Thanks https://stackoverflow.com/a/17805088
+$DEBUG && export PS4='${LINENO}: '
+$DEBUG && set -x
 
-			cat << EOT
+# Thanks http://redsymbol.net/articles/bash-exit-traps/
+function finish {
+  rm -rf "$FLOO_NETWORK" "$MAGICAL_CREATURES"
+}
+trap finish EXIT
+
+MAGICAL_CREATURES=$(mktemp -t patronus.XXXXXXXXXX)
+FLOO_NETWORK=$(mktemp -t patronus.XXXXXXXXXX)
+DEMENTORS=""
+printf "Lumos!\n"
+
+ps x > "$MAGICAL_CREATURES"
+
+
+FLOO_EXITS=$(egrep " *$$" "$MAGICAL_CREATURES" | \
+    awk '{print $2}')
+if awk '!/ PID/{print $2}' < "$MAGICAL_CREATURES" | \
+    sort -u |
+    egrep -v "^\?|$FLOO_EXITS" > "$FLOO_NETWORK"; then
+    DEMENTORS=$(cat "$FLOO_NETWORK")
+fi
+echo "$DEMENTORS"
+
+if [ -z "$DEMENTORS" ] ; then
+    echo "No dementors spotted nearby."
+else
+    DEMENTOR_KISSES=$(grep -f "$FLOO_NETWORK" < "$MAGICAL_CREATURES" | \
+        awk '{print $1}')
+    DEMENTOR_DESCRIPTION=$(ps u $DEMENTOR_KISSES)
+
+    cat << EOT
 Traversing floo network at $FLOO_EXITS, dementors spotted at: 
 $DEMENTORS
 
 Specialis Revelio!
-	
+    
 Dementors found: 
 $DEMENTOR_DESCRIPTION
 
 EXPECTO PATRONUM!
-  
 EOT
-			kill -HUP $DEMENTOR_KISSES 2>/dev/null
-			retval=$?
-		fi
-		rm -f $FLOO_NETWORK
-	}
-        rm -f $MAGICAL_CREATURES
-}
-exit $retval
+    kill -HUP $DEMENTOR_KISSES 2>/dev/null
+fi
