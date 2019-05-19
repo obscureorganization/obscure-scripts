@@ -3,7 +3,8 @@
 #
 # Updates the uptimerobot.com firewall entries
 #
-# Run this on a host that will be monitored through uptimerobot.com and
+# Run this on a host that will be monitored through uptimerobot.com 
+#
 # consider linking it into cron, for example:
 #
 #     sudo ln -s $PWD/uptimerobot-firewall-update.sh /etc/cron.weekly/
