@@ -12,4 +12,4 @@ Legal
 
 Copyright (C) 2019 by The Obscure Organization
 
-MIT licensed. See [LICENSE] for details.
+MIT licensed. See [LICENSE](LICENSE) for details.
