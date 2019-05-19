@@ -1,10 +1,42 @@
 #cloud-config
 # vim: syntax=yaml
 # cloud-init-centos-7-ipv6.yml
-# Derived from ldennison's comment in https://bugs.centos.org/view.php?id=14760 
-# and from the cloud-init config in https://docs.aws.amazon.com/vpc/latest/userguide/vpc-migrate-ipv6.html#vpc-migrate-ipv6-instance-types
+#
+# This one is intended for older instances where:
+# * the ENA adapter is in use, for example for the t3 and m5 instance types.
+# * you want both IPv4 and IPv6 networking enabled
+# * you have disabled network interface stable renaming so that eth0 will be
+#   the first interface as follows:
+#   
+#   Edit /etc/sysconfig/grub and replace the GRUB_CMDLINE_LINUX line as follows:
+#   
+#     GRUB_CMDLINE_LINUX="console=tty0 crashkernel=auto console=ttyS0,115200 net.ifnames=0"
+#
+#   Run this command:
+#
+#      grub2-mkconfig -o /boot/grub2/grub.cfg
+#
+# * you have rebuilt the initramfs with support for the ena drivers, by
+#   installing the install the "dracut-config-generic" package, with:
+#
+#      yum install dracut-config-generic -q -y
+#
+# * you have run this command to rebuild the kernel initramfs in /boot:
+#
+#      dracut -f
+#
+# Partially derived from:
+# * ldennison's comment in https://bugs.centos.org/view.php?id=14760 
+# * hhsnow's comment in https://bugs.centos.org/view.php?id=14107
+# * the cloud-init config in https://docs.aws.amazon.com/vpc/latest/userguide/vpc-migrate-ipv6.html#vpc-migrate-ipv6-instance-types
+#
 # The key change here is that we added /etc/sysconfig/network to the files sed considers,
-# Tested on CentOS Linux release 7.6.1810 (Core)
+#
+# Tested on CentOS Linux release 7.6.1810 (Core) and a t3.micro
+# instance on 2019-05-19
+#
+# Author:
+#    Richard Bullington-Mcguire <rbulling@obscure.org> / @obscurerichard 
 #
 # Copyright (C) 2019 by The Obscure Organization
 # MIT licensed. See the LICENSE file for details.

@@ -1,0 +1,60 @@
+#cloud-config
+# vim: syntax=yaml
+# cloud-init-centos-7.6-ipv6.yml
+#
+# This one is intended for new instances where:
+# * the ENA adapter is in use, for example for the t3 and m5 instance types.
+# * you want both IPv4 and IPv6 networking enabled
+#
+# This has both ens3 and ens5 in it, although only one of these usually appears in practice,
+# due to variability people have reported in starting up ena instances when the grub command
+# line parameter "net.ifnames=0" is not present.
+#
+# Partially derived from:
+# * pakdel's sketch of a network service remediation script in https://bugs.centos.org/view.php?id=13836
+# * ldennison's comment in https://bugs.centos.org/view.php?id=14760 
+# * hhsnow's comment in https://bugs.centos.org/view.php?id=14107
+# * the cloud-init config in https://docs.aws.amazon.com/vpc/latest/userguide/vpc-migrate-ipv6.html#vpc-migrate-ipv6-instance-types
+#
+# Tested on CentOS Linux release 7.6.1810 (Core) and a t3.micro
+# instance on 2019-05-19
+#
+# Author:
+#    Richard Bullington-Mcguire <rbulling@obscure.org> / @obscurerichard 
+#
+# Copyright (C) 2019 by The Obscure Organization
+# MIT licensed. See the LICENSE file for details.
+network:
+  version: 1
+  config:
+  - type: physical
+    name: ens3
+    subnets:
+      - type: dhcp4
+      - type: dhcp6
+  - type: physical
+    name: ens5
+    subnets:
+      - type: dhcp4
+      - type: dhcp6
+bootcmd:
+  - |
+    rm -f /etc/sysconfig/network-scripts/ifcfg-eth0
+    for PATH_DHCLIENT_PID in /var/run/dhclient*; do
+        export PATH_DHCLIENT_PID
+        dhclient -r
+        # Making sure it really truly stopped
+        kill $(<PATH_DHCLIENT_PID) || true
+        rm -f "$PATH_DHCLIENT_PID"
+    done
+    (
+        echo '# Created by cloud-init on instance boot automatically, do not edit.'
+        echo '# (╯°□°)╯︵ ┻━┻  YUNO WORK IPV6'
+        echo '# "do not edit" except:  we have to do this to get IPv6 to work ( ͡° ͜ʖ ͡°)'
+        echo 'NETWORKING=yes'
+        echo 'IPV6INIT=yes'
+        echo 'DHCPV6C=yes'
+    ) > /etc/sysconfig/network
+    echo "Rewrote /etc/sysconfig/network:"
+    cat /etc/sysconfig/network
+    systemctl restart network
