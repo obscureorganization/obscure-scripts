@@ -35,7 +35,7 @@ capture_env() {
     os="$(uname -a | tr '[:upper:]' '[:lower:]')"
 
     echo "current working directory (sysbench creates files here): '$(pwd)' -----"
-    echo "uname: '$(uname))'
+    echo "uname: '$(uname))"
     echo "----- environment details -----"
     uname
     case "$os" in
