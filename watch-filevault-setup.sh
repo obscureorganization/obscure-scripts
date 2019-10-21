@@ -16,8 +16,9 @@ INTERVAL=1800 # 1800 seconds is 30 minutes
 watch -n "$INTERVAL" '
     printf "Logging FileVault setup progress to '"$LOGFILE"'\n\n";
     (
-        date -R
-        fdesetup status
-    )           |  
-    tr "\n" " " |
-    tee -a '"$LOGFILE"
+        (
+            date -R 
+            fdesetup status
+        ) | tr "\n" " "
+        printf "\n"
+    ) | tee -a '"$LOGFILE"
