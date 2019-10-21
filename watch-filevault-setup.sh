@@ -12,6 +12,7 @@ IFS=$'\n\t'
 
 LOGFILE="$HOME/fdesetup-status.txt"
 INTERVAL=1800 # 1800 seconds is 30 minutes
+START="$(date -R)"
 
 watch -n "$INTERVAL" '
     printf "Logging FileVault setup progress to '"$LOGFILE"'\n\n";
@@ -19,6 +20,10 @@ watch -n "$INTERVAL" '
         (
             date -R 
             fdesetup status
-        ) | tr "\n" " "
+        ) | 
+        tr "\n" " "
         printf "\n"
-    ) | tee -a '"$LOGFILE"
+    ) | tee -a '"$LOGFILE"';
+    printf "\nPercent complete numbers seen since '"$START"'\n";
+    cut -d\  -f 16 <'"$LOGFILE"' |
+        sort -unr'
