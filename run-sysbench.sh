@@ -4,7 +4,7 @@
 NUM_THREADS=8
 
 run_sysbench() {
-	local threads="$1"
+	threads="$1"
 	for test in cpu memory mutex; do 
 		echo "----- Running sysbench for $test -----"
 		sysbench --test="$test" run
@@ -19,7 +19,7 @@ run_sysbench() {
 	echo "----- Running sysbench for threads -----"
 	sysbench --test=threads --num-threads="$threads" run
 
-    if [ -n "$(which mysql)" ]; then
+    if [ -n "$(command -v mysql)" ]; then
         echo "----- Running sysbench for oltp -----"
         mysql -u root -e 'drop database if exists sbtest; create database sbtest'
         if sysbench --test=oltp prepare --db-driver=mysql --mysql-user=root; then
@@ -31,7 +31,6 @@ run_sysbench() {
 }
 
 capture_env() {
-    local os
     os="$(uname -a | tr '[:upper:]' '[:lower:]')"
 
     echo "current working directory (sysbench creates files here): '$(pwd)' -----"

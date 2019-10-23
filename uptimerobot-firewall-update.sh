@@ -44,14 +44,14 @@ ports='5665/tcp'
 
     for perm in "" "--permanent"; do
         for service in $services; do
-            firewall-cmd --zone "$zone" --add-service ssh $perm
+            firewall-cmd --zone "$zone" --add-service "$service" $perm
         done
         for port in $ports; do
             firewall-cmd --zone "$zone" --add-port "$port" $perm
         done
         curl -s https://uptimerobot.com/inc/files/ips/IPv4andIPv6.txt | 
             sed 's/\r//g' | 
-            while read source; do 
+            while read -r source; do 
                 firewall-cmd --zone "$zone" --add-source "$source" $perm
             done
     done
