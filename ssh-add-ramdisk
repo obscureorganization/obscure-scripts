@@ -1,0 +1,150 @@
+#!/usr/bin/env bash
+#
+# ssh-add-ramdisk
+#
+# Have you ever wanted to take your SSH keys with you, but did not want to put them on a
+# computer that might be stolen or maybe you want to use the keys on someone else's computer,
+# but do not want them to be stored permanently there.
+#
+# SSH is picky about what permissions and ownership the keys have, so typically you will
+# not be able to just do an 'ssh-add' directly on the keys on a USB thumb drive.
+#
+# This allows you to copy your SSH keys from removable media # to a RAM disk, and 
+# then adds the SSH keys to your current SSH agent keyring.
+#
+# This works on both Mac OS X 10.x and on Linux.
+#
+# Copyright (C) 2019 The Obscure Organization
+#
+# MIT licensed. See the LICENSE file for details.
+#
+# Release History:
+#
+# 1.0 (Nov 11, 2019)
+#  First public release
+
+DEBUG=${DEBUG:-false}
+
+# Thanks https://stackoverflow.com/a/16496491
+function usage {
+    echo "Usage: $0 [-h] [-v]"
+}
+
+verbose=''
+
+set +u
+while getopts ":hlv" args; do
+    case "${args}" in
+        h)
+            usage
+            ;;
+        v)
+            DEBUG='true'
+            verbose='-v'
+            ;;
+        *)
+            usage
+            exit 1
+            ;;
+    esac
+done
+shift $((OPTIND-1))
+
+# Thanks https://stackoverflow.com/a/17805088
+$DEBUG && export PS4='${LINENO}: '
+$DEBUG && set -x
+finish () {
+    $DEBUG && set +x
+}
+trap finish EXIT
+
+$DEBUG && echo "args: login $login / verbose $verbose"
+
+SSHENV="$HOME/.ssh/env"
+cat > "$SSHENV" <<EOF
+#!/usr/bin/env bash
+#
+# SSH env file
+#
+# See ssh-env
+#
+# Source this with
+#    . ~/.ssh/env
+#
+set -a
+SSH_CONNECTION="$SSH_CONNECTION"
+SSH_AUTH_SOCK="$SSH_AUTH_SOCK"
+set +a
+EOF
+
+# Give me BASH or give me death
+# Credit to Stack Overflow for heuristics
+# http://stackoverflow.com/questions/3327013/how-to-determine-the-current-shell-im-working-on
+# See the article for question and answer authors
+if [ "$BASH" = "" ]; then
+    shell=`ps | grep \`echo $$\` | grep -v grep |  awk '{ print $4 }'`
+    echo "$0 is not running in bash (apparently running $shell), aborting."
+    echo "Try running 'bash ssh-add-ramdisk'"
+    exit 1
+fi
+args=`getopt r`
+if [ $? != 0 ]
+then
+    echo 'Usage: ...'
+    exit 2
+fi
+set -- $args
+for i
+do
+   case "$i"
+   in
+        -r)
+            echo 'asdfasdfasdf'
+            REMOVE=true
+            shift;;
+        --)
+            shift; break;;
+    esac
+done
+#echo single-char flags: "'"$sflags"'"
+#echo oarg is "'"$oarg"'"
+#echo $REMOVE
+
+# Credit to Stack Overflow for DIR one-liner
+# http://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in
+# See the article for question and answer authors
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Set this to the location on your removable media where you store your
+# SSH keys
+KEY_BAK_DIR=$DIR/Backup/.ssh
+UNAME=`uname`
+
+# Size of RAMDISK in kilobytes
+DISKSIZE=8192
+case $UNAME in
+	Linux)
+		RAMDIR=/media/ramdisk-$USER
+		echo "Creating Linux ramdisk on $RAMDIR"
+		sudo mkdir -p $RAMDIR
+		sudo mkfs -q /dev/ram1 $DISKSIZE
+		sudo mount /dev/ram1 $RAMDIR
+		sudo chown $USER $RAMDIR
+	;;
+
+	Darwin)
+		RAMDIR=/Volumes/ramdisk-$USER
+		echo "Creating Mac OS X ramdisk on $RAMDIR"
+        SECTORS=`expr $DISKSIZE \* 2` # Size in 512 byte sectors
+		diskutil erasevolume HFS+ "ramdisk-$USER" `hdiutil attach -nomount ram://$SECTORS`
+	;;
+	*)
+		echo "Operating system $UNAME not supported."
+		exit 2
+	;;
+esac
+
+cp -r $KEY_BAK_DIR $RAMDIR
+chmod 700 $RAMDIR/.ssh
+chmod 600 $RAMDIR/.ssh/*
+ssh-add $RAMDIR/.ssh/id_rsa
