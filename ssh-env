@@ -35,7 +35,7 @@
 #
 # Release History:
 #
-# 1.0 (June 1, 2019
+# 1.0 (June 1, 2019)
 #  First public release
 
 DEBUG=${DEBUG:-false}
