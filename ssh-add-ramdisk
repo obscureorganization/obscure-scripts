@@ -18,30 +18,49 @@
 #
 # MIT licensed. See the LICENSE file for details.
 #
+# This program uses code snippets from Stack Overflow.
+# See the inline article links for question and answer author credits.
+# Thank you Stack Overflow community for the great questions & answers!
+#
 # Release History:
 #
-# 1.0 (Nov 11, 2019)
+# 1.0 (2019-11-12)
 #  First public release
+# 1.1 (2019-12-07)
+#  Fixed shellcheck issues, removed redundant code
+
+# Give me BASH or give me death
+# http://stackoverflow.com/questions/3327013/how-to-determine-the-current-shell-im-working-on
+if [ "$BASH" = "" ]; then
+    #shellcheck disable=SC2009
+    shell=$(ps | grep \`echo $$\` | grep -v grep |  awk '{ print $4 }')
+    echo "$0 is not running in bash (apparently running $shell), aborting."
+    echo "Try running 'bash ssh-add-ramdisk'"
+    exit 1
+fi
+
+# http://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 DEBUG=${DEBUG:-false}
 
 # Thanks https://stackoverflow.com/a/16496491
 function usage {
-    echo "Usage: $0 [-h] [-v]"
+    echo "Usage: $0 [-h] [-v] [-r]"
 }
 
-verbose=''
-
 set +u
-while getopts ":hlv" args; do
+while getopts ":hlvr" args; do
     case "${args}" in
         h)
             usage
             ;;
         v)
-            DEBUG='true'
-            verbose='-v'
+            DEBUG=true
             ;;
+        r)
+            REMOVE=true
+            shift;;
         *)
             usage
             exit 1
@@ -51,15 +70,19 @@ done
 shift $((OPTIND-1))
 
 # Thanks https://stackoverflow.com/a/17805088
-$DEBUG && export PS4='${LINENO}: '
-$DEBUG && set -x
+$DEBUG && export PS4='${LINENO}: ' && set -x
 finish () {
     $DEBUG && set +x
 }
 trap finish EXIT
 
-$DEBUG && echo "args: login $login / verbose $verbose"
+$DEBUG && echo "args: verbose $DEBUG remove $REMOVE"
 
+
+# If you are using screen or tmux, it is useful to have an env
+# file you can source to reconnect to your SSH agent from the
+# windows inside.
+#
 SSHENV="$HOME/.ssh/env"
 cat > "$SSHENV" <<EOF
 #!/usr/bin/env bash
@@ -74,69 +97,17 @@ cat > "$SSHENV" <<EOF
 set -a
 SSH_CONNECTION="$SSH_CONNECTION"
 SSH_AUTH_SOCK="$SSH_AUTH_SOCK"
+REMOVE=false
 set +a
 EOF
 
-# Give me BASH or give me death
-# Credit to Stack Overflow for heuristics
-# http://stackoverflow.com/questions/3327013/how-to-determine-the-current-shell-im-working-on
-# See the article for question and answer authors
-if [ "$BASH" = "" ]; then
-    shell=`ps | grep \`echo $$\` | grep -v grep |  awk '{ print $4 }'`
-    echo "$0 is not running in bash (apparently running $shell), aborting."
-    echo "Try running 'bash ssh-add-ramdisk'"
-    exit 1
-fi
-args=`getopt r`
-if [ $? != 0 ]
-then
-    echo 'Usage: ...'
-    exit 2
-fi
-set -- $args
-for i
-do
-   case "$i"
-   in
-        -r)
-            echo 'asdfasdfasdf'
-            REMOVE=true
-            shift;;
-        --)
-            shift; break;;
-    esac
-done
-#echo single-char flags: "'"$sflags"'"
-#echo oarg is "'"$oarg"'"
-#echo $REMOVE
-
-# Credit to Stack Overflow for DIR one-liner
-# http://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in
-# See the article for question and answer authors
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
-# Set this to the location on your removable media where you store your
-# SSH keys
-KEY_BAK_DIR=$DIR/Backup/.ssh
-UNAME=`uname`
-
-# Size of RAMDISK in kilobytes
-DISKSIZE=8192
 case $UNAME in
 	Linux)
 		RAMDIR=/media/ramdisk-$USER
-		echo "Creating Linux ramdisk on $RAMDIR"
-		sudo mkdir -p $RAMDIR
-		sudo mkfs -q /dev/ram1 $DISKSIZE
-		sudo mount /dev/ram1 $RAMDIR
-		sudo chown $USER $RAMDIR
 	;;
 
 	Darwin)
 		RAMDIR=/Volumes/ramdisk-$USER
-		echo "Creating Mac OS X ramdisk on $RAMDIR"
-        SECTORS=`expr $DISKSIZE \* 2` # Size in 512 byte sectors
-		diskutil erasevolume HFS+ "ramdisk-$USER" `hdiutil attach -nomount ram://$SECTORS`
 	;;
 	*)
 		echo "Operating system $UNAME not supported."
@@ -144,7 +115,43 @@ case $UNAME in
 	;;
 esac
 
-cp -r $KEY_BAK_DIR $RAMDIR
-chmod 700 $RAMDIR/.ssh
-chmod 600 $RAMDIR/.ssh/*
-ssh-add $RAMDIR/.ssh/id_rsa
+# Remove ramdisk if remove parameter is present
+"$REMOVE" && sudo umount "$RAMDIR" && echo "Ramdisk removed" && exit 0
+
+# Set this to the location on your removable media where you store your
+# SSH keys
+KEY_BAK_DIR=$DIR/Backup/.ssh
+UNAME=$(uname)
+
+echo "Creating ramdisk on $RAMDIR"
+# Size of RAMDISK in kilobytes
+DISKSIZE=8192
+case $UNAME in
+	Linux)
+        if [[ -b "$RAMDIR" ]]; then
+            sudo mkdir -p "$RAMDIR"
+            sudo mkfs -q /dev/ram1 "$DISKSIZE"
+            sudo mount /dev/ram1 "$RAMDIR"
+            sudo chown "$USER" "$RAMDIR"
+        else
+            echo "$RAMDIR ramdisk device is missing or not a block device, exiting."
+            exit 3
+        fi
+	;;
+	Darwin)
+        SECTORS=$((DISKSIZE * 2)) # Size in 512 byte sectors
+        diskutil erasevolume HFS+ "ramdisk-$USER" "$(hdiutil attach -nomount "ram://$SECTORS")"
+	;;
+	*)
+		echo "Operating system $UNAME not supported."
+		exit 2
+	;;
+esac
+
+# Copy the keys in place
+cp -r "$KEY_BAK_DIR" "$RAMDIR"
+chmod 700 "$RAMDIR/.ssh"
+chmod 600 "$RAMDIR/.ssh/*"
+# Add ALL the keys in the ramdisk to the agent
+#shellcheck disable=SC2046
+ssh-add $(grep 'PRIVATE KEY' "RAMDIR/.ssh/id*" | cut -f 1 -d: | sort -u)
