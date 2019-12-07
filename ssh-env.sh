@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# ssh-env
+# ssh-env.sh
 #
 # Propagate ssh environment inside current session
 #
@@ -19,13 +19,14 @@
 #
 # Usage:
 #
-#    ssh-env
+#    ssh-env.sh
 #
 # Inside your .profile, .bash_profile, or .bash_login:
 #
-#    ssh-env
+#    ssh-env.sh
 #
-# When running interactively in a tmux or screen session:
+# When running interactively in a tmux or screen session, include
+# the output of ssh-env.sh and regain access to your SSH agent:
 #
 #    . ~/.ssh/env
 #
@@ -37,6 +38,8 @@
 #
 # 1.0 (June 1, 2019)
 #  First public release
+# 1.1 (December 7, 2019)
+#  Improved documentation
 
 DEBUG=${DEBUG:-false}
 
