@@ -125,8 +125,7 @@ case $UNAME in
         # Size in 512 byte sectors
         SECTORS=$((DISKSIZE * 2))
         VOLUME=$(hdiutil attach -nomount "ram://$SECTORS" | sed 's/[^0-9]*$//g')
-        echo "New ramdisk volume: $VOLUME"
-        ls -l "$VOLUME"
+        $DEBUG && echo "Volume: $VOLUME"
         diskutil erasevolume HFS+ "ramdisk-$USER" "$VOLUME"
 	;;
 	*)
