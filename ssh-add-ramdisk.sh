@@ -78,29 +78,6 @@ trap finish EXIT
 
 $DEBUG && echo "args: verbose $DEBUG remove $REMOVE"
 
-
-# If you are using screen or tmux, it is useful to have an env
-# file you can source to reconnect to your SSH agent from the
-# windows inside.
-#
-SSHENV="$HOME/.ssh/env"
-cat > "$SSHENV" <<EOF
-#!/usr/bin/env bash
-#
-# SSH env file
-#
-# See ssh-env
-#
-# Source this with
-#    . ~/.ssh/env
-#
-set -a
-SSH_CONNECTION="$SSH_CONNECTION"
-SSH_AUTH_SOCK="$SSH_AUTH_SOCK"
-REMOVE=false
-set +a
-EOF
-
 case $UNAME in
 	Linux)
 		RAMDIR=/media/ramdisk-$USER

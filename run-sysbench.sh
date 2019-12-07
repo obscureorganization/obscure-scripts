@@ -1,5 +1,8 @@
 #!/bin/sh
 # Run a complete suite of sysbench performance benchmarks
+#
+# Copyright (C) 2019 by The Obscure Organization
+# MIT licensed. See the LICENSE file for details.
 
 NUM_THREADS=8
 
