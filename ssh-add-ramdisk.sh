@@ -88,10 +88,12 @@ UNAME=$(uname)
 case $UNAME in
 	Linux)
 		RAMDIR=/media/ramdisk-$USER
+        SUDO_UMOUNT=sudo
 	;;
 
 	Darwin)
 		RAMDIR=/Volumes/ramdisk-$USER
+        SUDO_UMOUNT=''
 	;;
 	*)
 		echo "Operating system $UNAME not supported."
@@ -100,7 +102,7 @@ case $UNAME in
 esac
 
 # Remove ramdisk if remove parameter is present
-"$REMOVE" && sudo umount "$RAMDIR" && echo "Ramdisk removed" && exit 0
+"$REMOVE" && $SUDO_UMOUNT umount "$RAMDIR" && echo "Ramdisk removed" && exit 0
 
 # Set this to the location on your removable media where you store your
 # SSH keys
