@@ -27,7 +27,7 @@
 # 1.0 (2019-11-12)
 #  First public release
 # 1.1 (2019-12-07)
-#  Fixed shellcheck issues, removed redundant code
+#  Fixed shellcheck issues, removed redundant code, implemented remove
 
 # Give me BASH or give me death
 # http://stackoverflow.com/questions/3327013/how-to-determine-the-current-shell-im-working-on
@@ -39,10 +39,15 @@ if [ "$BASH" = "" ]; then
     exit 1
 fi
 
+# Set unofficial bash strict mode http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail
+IFS=$'\n\t'
+
 # http://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 DEBUG=${DEBUG:-false}
+REMOVE=${REMOVE:-false}
 
 # Thanks https://stackoverflow.com/a/16496491
 function usage {
@@ -54,6 +59,7 @@ while getopts ":hlvr" args; do
     case "${args}" in
         h)
             usage
+            exit 0
             ;;
         v)
             DEBUG=true
@@ -78,6 +84,7 @@ trap finish EXIT
 
 $DEBUG && echo "args: verbose $DEBUG remove $REMOVE"
 
+UNAME=$(uname)
 case $UNAME in
 	Linux)
 		RAMDIR=/media/ramdisk-$USER
@@ -98,7 +105,6 @@ esac
 # Set this to the location on your removable media where you store your
 # SSH keys
 KEY_BAK_DIR=$DIR/Backup/.ssh
-UNAME=$(uname)
 
 echo "Creating ramdisk on $RAMDIR"
 # Size of RAMDISK in kilobytes
@@ -116,8 +122,12 @@ case $UNAME in
         fi
 	;;
 	Darwin)
-        SECTORS=$((DISKSIZE * 2)) # Size in 512 byte sectors
-        diskutil erasevolume HFS+ "ramdisk-$USER" "$(hdiutil attach -nomount "ram://$SECTORS")"
+        # Size in 512 byte sectors
+        SECTORS=$((DISKSIZE * 2))
+        VOLUME=$(hdiutil attach -nomount "ram://$SECTORS" | sed 's/[^0-9]*$//g')
+        echo "New ramdisk volume: $VOLUME"
+        ls -l "$VOLUME"
+        diskutil erasevolume HFS+ "ramdisk-$USER" "$VOLUME"
 	;;
 	*)
 		echo "Operating system $UNAME not supported."
@@ -127,8 +137,11 @@ esac
 
 # Copy the keys in place
 cp -r "$KEY_BAK_DIR" "$RAMDIR"
-chmod 700 "$RAMDIR/.ssh"
-chmod 600 "$RAMDIR/.ssh/*"
+find "$RAMDIR" -type f -print0 | xargs -0 chmod 600
+find "$RAMDIR" -type d -print0 | xargs -0 chmod 700
 # Add ALL the keys in the ramdisk to the agent
 #shellcheck disable=SC2046
-ssh-add $(grep 'PRIVATE KEY' "RAMDIR/.ssh/id*" | cut -f 1 -d: | sort -u)
+SSH_KEYS=$(grep -I 'PRIVATE KEY' $(find "$RAMDIR" -type f) | cut -f 1 -d: | sort -u)
+$DEBUG && printf "SSH Keys:\n%s\n" "$SSH_KEYS"
+#shellcheck disable=SC2086
+ssh-add $SSH_KEYS
