@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# ssh-add-ramdisk
+# ssh-add-ramdisk.sh
 #
 # Have you ever wanted to take your SSH keys with you, but did not want to put them on a
 # computer that might be stolen or maybe you want to use the keys on someone else's computer,

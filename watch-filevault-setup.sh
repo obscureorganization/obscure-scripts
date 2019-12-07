@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+#
 # watch-filevalult-setup.sh
 #
 # On macOS, watch the progress of FileVault and log the progress to a file.

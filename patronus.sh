@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# patronus
+# patronus.sh
 #
 # Dispel ghost logins that suck the joy out of your active terminal session
 #

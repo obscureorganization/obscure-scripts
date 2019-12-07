@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+#
 # uptimerobot-firewall-update.sh
 #
 # Updates the uptimerobot.com firewall entries

@@ -1,4 +1,7 @@
 #!/bin/sh
+#
+# run-sysbench.sh
+#
 # Run a complete suite of sysbench performance benchmarks
 #
 # Copyright (C) 2019 by The Obscure Organization
