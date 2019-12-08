@@ -33,8 +33,7 @@ IFS=$'\n\t'
 DEBUG=${DEBUG:-false}
 
 # Thanks https://stackoverflow.com/a/17805088
-$DEBUG && export PS4='${LINENO}: '
-$DEBUG && set -x
+$DEBUG && export PS4='${LINENO}: ' && set -x
 
 # Thanks http://redsymbol.net/articles/bash-exit-traps/
 function finish {

@@ -69,8 +69,7 @@ done
 shift $((OPTIND-1))
 
 # Thanks https://stackoverflow.com/a/17805088
-$DEBUG && export PS4='${LINENO}: '
-$DEBUG && set -x
+$DEBUG && export PS4='${LINENO}: ' && set -x
 finish () {
     $DEBUG && set +x
 }
