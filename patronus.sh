@@ -4,14 +4,24 @@
 #
 # Dispel ghost logins that suck the joy out of your active terminal session
 #
-# Copyright (C) 2007 Richard Bullington-McGuire
-# Copyright (C) 2019 The Obscure Organization
-# Many thanks (and aplologies) to J.K. Rowling
+# USAGE
+#
+#     ./patronus.sh
+#
+# To run with debugging information enabled:
+#
+#     DEBUG=true ./patronus.sh
 #
 # DISCLAIMER
-#   This is a parody of J.K. Rowling's Harry Potter novels. 
-#   Lawyers: please don't sue this poor house-elf who is only trying to help.
 #
+# This is a parody of J.K. Rowling's Harry Potter novels. 
+# Lawyers: please don't sue this poor house-elf who is only trying to help.
+# 
+# Many thanks (and aplologies) to J.K. Rowling, who has inspired us all.
+#
+# LEGAL
+# 
+# Copyright (C) 2007 Richard Bullington-McGuire
 # Copyright (C) 2019 by The Obscure Organization
 # MIT licensed. See the LICENSE file for details.
 #
