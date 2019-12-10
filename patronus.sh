@@ -35,6 +35,9 @@
 #
 # 1.0.2 (May 19, 2019)
 #  Lint fixes: now ShellCheck clean  (see https://www.shellcheck.net)
+#
+# 1.0.3 (December 10, 2019)
+#  Improved documentation
 
 # Set unofficial bash strict mode http://redsymbol.net/articles/unofficial-bash-strict-mode/
 set -euo pipefail
