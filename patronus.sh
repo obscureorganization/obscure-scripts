@@ -62,11 +62,11 @@ printf "Lumos!\n"
 ps x > "$MAGICAL_CREATURES"
 
 
-FLOO_EXITS=$(egrep " *$$" "$MAGICAL_CREATURES" | \
+FLOO_EXITS=$(grep -E " *$$" "$MAGICAL_CREATURES" | \
     awk '{print $2}')
 if awk '!/ PID/{print $2}' < "$MAGICAL_CREATURES" | \
     sort -u |
-    egrep -v "^\?|$FLOO_EXITS" > "$FLOO_NETWORK"; then
+    grep -E -v "^\?|$FLOO_EXITS" > "$FLOO_NETWORK"; then
     DEMENTORS=$(cat "$FLOO_NETWORK")
 fi
 echo "$DEMENTORS"
@@ -76,7 +76,7 @@ if [ -z "$DEMENTORS" ] ; then
 else
     DEMENTOR_KISSES=$(grep -f "$FLOO_NETWORK" < "$MAGICAL_CREATURES" | \
         awk '{print $1}')
-    DEMENTOR_DESCRIPTION=$(ps u $DEMENTOR_KISSES)
+    DEMENTOR_DESCRIPTION=$(ps u "$DEMENTOR_KISSES")
 
     cat << EOT
 Traversing floo network at $FLOO_EXITS, dementors spotted at: 
@@ -89,5 +89,5 @@ $DEMENTOR_DESCRIPTION
 
 EXPECTO PATRONUM!
 EOT
-    kill -HUP $DEMENTOR_KISSES 2>/dev/null
+    kill -HUP "$DEMENTOR_KISSES" 2>/dev/null
 fi
