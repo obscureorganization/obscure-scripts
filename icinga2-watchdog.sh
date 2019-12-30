@@ -7,29 +7,36 @@
 #
 # To use this, you should probably set up an additional API user for
 # your icinga2 system in your icinga2 system's conf.d/api-users.conf
-# (typically /etc/icinga2/conf.d/api-users.conf)
+# (typically /etc/icinga2/conf.d/api-users.conf) This can be done as follows:
+#
+# Configure an API user called "watchdog" in /etc/icinga2/conf.d/api-users.conf:
+#
+#     object ApiUser "watchdog" {
+#       password = "replace-me-with-a-real-password"
+#
+#       permissions = [ "*" ]
+#     }
 #
 # You will want to mark your main icinga2 server with the following
 # host variable in its configuration file:
 #
 #     vars.icinga = true
 #
-# This is needed so that the fil
-#
+# This is needed so that the watchdog knows what server to check on.
 # Set up a host group in your conf.d/host-groups.conf as follows:
 #
 #     object HostGroup "icinga-servers" {
 #        display_name = "Icinga Servers"
-# 
+#
 #        assign where host.vars.icinga
 #      }
-#     
-# Set this up by copying this script to your /usr/local/bin directory,
-# and then set the permissions so that the icinga user can read and
-# execute it:
+#
+# Set this up by copying or symlinking this script to
+# the /usr/local/bin directory, and then set the permissions so that
+# the icinga user can read and execute it:
 #
 #    install icinga-watchdog.sh /usr/local/bin/icinga-watchdog.sh
-# 
+#
 # Create a configuration file to ustomize the message and credentials,
 # and put it in /etc/icinga2/icinga-watchdog.env:
 #
@@ -55,7 +62,7 @@
 # 1.0 (December 8, 2019)
 #  First public release
 # 1.1 (December 30, 2019)
-#  Externalized config to env file
+#  Externalized config to env file, fixed docs
 
 # Set unofficial bash strict mode http://redsymbol.net/articles/unofficial-bash-strict-mode/
 set -euo pipefail
