@@ -30,19 +30,21 @@
 #
 #    install icinga-watchdog.sh /usr/local/bin/icinga-watchdog.sh
 # 
-# Edit the file to customize the message and credentials:
+# Create a configuration file to ustomize the message and credentials,
+# and put it in /etc/icinga2/icinga-watchdog.env:
 #
 #    vi /usr/local/bin/icinga-watchdog.sh
 #
+# Make the file contents something like this:
+#
+#    CREDENTIALS='watchdog:xxxxxxxxxxxxxyyyyyyyyyyyzzzzzz12'
+#    CONTACT_NAME='Snafu Fubar'
+#    CONTACT_PHONE='+1 555 555 1212'
+#    export CREDENTIALS CONTACT_NAME CONTACT_PHONE
+#
 # Then add a crontab entry on your icinga server:
 #
-#    18 * * * * /usr/local/bin/icinga-watchdog.sh
-#
-# This helps work around the issue people face when they return
-# to a tmux or screen session, and need to use the SSH authentication
-# agent to authenticate or further forward the agent connection.
-# Typically the SSH variables are stale and attempting to use the
-# agent will fail.
+#    18 * * * * . /etc/icinga2/icinga-watchdog.env && /usr/local/bin/icinga-watchdog.sh
 #
 # Copyright (C) 2019 The Obscure Organization
 #
@@ -52,6 +54,8 @@
 #
 # 1.0 (December 8, 2019)
 #  First public release
+# 1.1 (December 30, 2019)
+#  Externalized config to env file
 
 # Set unofficial bash strict mode http://redsymbol.net/articles/unofficial-bash-strict-mode/
 set -euo pipefail
@@ -62,11 +66,11 @@ DEBUG=${DEBUG:-false}
 # Thanks https://stackoverflow.com/a/17805088
 $DEBUG && export PS4='${LINENO}: ' && set -x
 
-AUTHOR='watchdog'
-HOST_GROUP='icinga-servers'
-CREDENTIALS='watchdog:replace-me-with-a-real-password'
-CONTACT_NAME='Ferd Berferd'
-CONTACT_PHONE='+1 555 555 1212'
+AUTHOR=${AUTHOR:-watchdog}
+HOST_GROUP=${HOST_GROUP:-icinga-servers}
+CREDENTIALS=${CREDENTIALS:-watchdog:replace-me-with-a-real-password}
+CONTACT_NAME=${CONTACT_NAME:-Ferd Berferd}
+CONTACT_PHONE=${CONTACT_PHONE:-+1 555 555 1212}
 
 MESSAGE="Hello again!\nThis is a daily reminder from the Icinga2 watchdog script that the system is working.\n\nIf you do not see this message once every day, something is wrong!\n\nIf the last message you see is older than 72 hours, please escalate to:\n\n$CONTACT_NAME\nvia mobile telephone: $CONTACT_PHONE\n\n\nThe script $0 on $(hostname) sends this alert."
 
