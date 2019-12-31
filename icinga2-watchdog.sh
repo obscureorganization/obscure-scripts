@@ -38,20 +38,19 @@
 #    install icinga-watchdog.sh /usr/local/bin/icinga-watchdog.sh
 #
 # Create a configuration file to ustomize the message and credentials,
-# and put it in /etc/icinga2/icinga-watchdog.env:
+# and put it in /etc/icinga2/icinga2-watchdog.env:
 #
-#    vi /usr/local/bin/icinga-watchdog.sh
+#    vi /usr/local/bin/icinga2-watchdog.sh
 #
 # Make the file contents something like this:
 #
 #    CREDENTIALS='watchdog:xxxxxxxxxxxxxyyyyyyyyyyyzzzzzz12'
 #    CONTACT_NAME='Snafu Fubar'
 #    CONTACT_PHONE='+1 555 555 1212'
-#    export CREDENTIALS CONTACT_NAME CONTACT_PHONE
 #
 # Then add a crontab entry on your icinga server:
 #
-#    18 * * * * . /etc/icinga2/icinga-watchdog.env && /usr/local/bin/icinga-watchdog.sh
+#    0 16 * * * set -a && . /etc/icinga2/icinga2-watchdog.env && /usr/local/bin/icinga2-watchdog.sh
 #
 # Copyright (C) 2019 The Obscure Organization
 #
@@ -63,6 +62,8 @@
 #  First public release
 # 1.1 (December 30, 2019)
 #  Externalized config to env file, fixed docs
+# 1.2 (December 31, 2019)
+#  Quiet output on success, fixed cron expression, fixed docs
 
 # Set unofficial bash strict mode http://redsymbol.net/articles/unofficial-bash-strict-mode/
 set -euo pipefail
@@ -70,6 +71,12 @@ IFS=$'\n\t'
 
 DEBUG=${DEBUG:-false}
 
+OUTFILE=$(mktemp -t patronus.XXXXXXXXXX)
+finish () {
+    rm -f "$OUTFILE"
+    $DEBUG && set +x
+}
+trap finish EXIT
 # Thanks https://stackoverflow.com/a/17805088
 $DEBUG && export PS4='${LINENO}: ' && set -x
 
@@ -81,4 +88,7 @@ CONTACT_PHONE=${CONTACT_PHONE:-+1 555 555 1212}
 
 MESSAGE="Hello again!\nThis is a daily reminder from the Icinga2 watchdog script that the system is working.\n\nIf you do not see this message once every day, something is wrong!\n\nIf the last message you see is older than 72 hours, please escalate to:\n\n$CONTACT_NAME\nvia mobile telephone: $CONTACT_PHONE\n\n\nThe script $0 on $(hostname) sends this alert."
 
-exec curl -k -s -u "$CREDENTIALS" -H 'Accept: application/json'  -X POST 'https://localhost:5665/v1/actions/send-custom-notification'  -d '{ "type": "Host", "author": "'"$AUTHOR"'", "comment": "'"$MESSAGE"'", "force": true, "pretty": true, "filter": "\"'"$HOST_GROUP"'\" in host.groups"  }'
+
+if ! curl -k -s -u "$CREDENTIALS" -H 'Accept: application/json'  -X POST 'https://localhost:5665/v1/actions/send-custom-notification'  -d '{ "type": "Host", "author": "'"$AUTHOR"'", "comment": "'"$MESSAGE"'", "force": true, "pretty": true, "filter": "\"'"$HOST_GROUP"'\" in host.groups"  }' >"$OUTFILE" 2>&1; then
+    cat "$OUTFILE"
+fi
