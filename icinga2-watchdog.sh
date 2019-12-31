@@ -89,6 +89,18 @@ CONTACT_PHONE=${CONTACT_PHONE:-+1 555 555 1212}
 MESSAGE="Hello again!\nThis is a daily reminder from the Icinga2 watchdog script that the system is working.\n\nIf you do not see this message once every day, something is wrong!\n\nIf the last message you see is older than 72 hours, please escalate to:\n\n$CONTACT_NAME\nvia mobile telephone: $CONTACT_PHONE\n\n\nThe script $0 on $(hostname) sends this alert."
 
 
-if ! curl -k -s -u "$CREDENTIALS" -H 'Accept: application/json'  -X POST 'https://localhost:5665/v1/actions/send-custom-notification'  -d '{ "type": "Host", "author": "'"$AUTHOR"'", "comment": "'"$MESSAGE"'", "force": true, "pretty": true, "filter": "\"'"$HOST_GROUP"'\" in host.groups"  }' >"$OUTFILE" 2>&1; then
+set +e
+curl -v -k -s \
+    -u "$CREDENTIALS" \
+    -H 'Accept: application/json'  \
+    -X POST 'https://localhost:5665/v1/actions/send-custom-notification'  \
+    -d '{ "type": "Host", "author": "'"$AUTHOR"'", "comment": "'"$MESSAGE"'", "force": true, "pretty": true, "filter": "\"'"$HOST_GROUP"'\" in host.groups"  }' \
+    >"$OUTFILE" 2>&1
+RETCODE=$?
+if [[ "$RETCODE" != 0 ]] || ! grep "200 OK" "$OUTFILE" >/dev/null 2>&1; then
+    echo "ERROR: curl POST to Slack did not complete OK:"
     cat "$OUTFILE"
+    exit 1
 fi
+$DEBUG && echo "OK: curl POST to Slack completed fine"
+$DEBUG && cat "$OUTFILE"
