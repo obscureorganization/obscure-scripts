@@ -71,7 +71,7 @@ IFS=$'\n\t'
 
 DEBUG=${DEBUG:-false}
 
-OUTFILE=$(mktemp -t patronus.XXXXXXXXXX)
+OUTFILE=$(mktemp -t icinga2-watchdog.XXXXXXXXXX)
 finish () {
     rm -f "$OUTFILE"
     $DEBUG && set +x
