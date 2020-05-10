@@ -9,7 +9,7 @@
 # Create symlinks to activate this:
 #
 #    sudo ln -s $(pwd)/imapd-reap-processes.sh /usr/local/sbin/imapd-reap-processes.sh
-#    sudo ln -s /usr/local/sbin/imapd-reap-processes.sh /etc/cron.daily/imapd-reap-processes.sh
+#    sudo ln -s /usr/local/sbin/imapd-reap-processes.sh /etc/cron.daily/imapd-reap-processes
 #
 # Copyright (C) 2020 The Obscure Organization
 #
