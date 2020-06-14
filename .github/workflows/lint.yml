@@ -1,0 +1,17 @@
+name: Shellcheck Lint
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Hello, GitHub actions!
+      run: echo Hello, world!
+    - name: ShellCheck
+      uses: ludeeus/action-shellcheck@0.2.1
