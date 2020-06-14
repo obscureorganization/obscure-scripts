@@ -19,8 +19,7 @@ A collection of scripts from [The Obscure Organization](https://www.obscure.org)
 
 Acknowledgements
 ----------------
-Thanks to Scott Hanselman for the [suggestion and instructions on switching the git default branch from master to main](https://www.hanselman.com/blog/EasilyRenameYourGitDefaultBranchFromMasterToMain.aspx). This repository transitioned to using `main` as its branch on 20
-20-06-14.
+Thanks to Scott Hanselman for the [suggestion and instructions on switching the git default branch from master to main](https://www.hanselman.com/blog/EasilyRenameYourGitDefaultBranchFromMasterToMain.aspx). This repository transitioned to using `main` as its default branch on 2020-06-14.
 
 Legal
 -----
