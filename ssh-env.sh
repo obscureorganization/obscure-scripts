@@ -75,7 +75,7 @@ finish () {
 }
 trap finish EXIT
 
-$DEBUG && echo "args: login $login / verbose $verbose"
+$DEBUG && echo "args: verbose $verbose"
 
 SSHENV="$HOME/.ssh/env"
 cat > "$SSHENV" <<EOF
