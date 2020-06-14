@@ -14,9 +14,13 @@ A collection of scripts from [The Obscure Organization](https://www.obscure.org)
 * [ssh-env.sh](ssh-env.sh) - Use to help reconnect managed terminal sessions (think `screen` or `tmux`) terminals to your SSH key agent via environment manipulation.
 * [watch-filevault-setup.sh](wuhatch-filevault-setup.sh) - Watch and log the filevault encryption process, which can take a really long time on an older Macintosh.
 
-Legal
-=====
+Acknowledgements
+----------------
+Thanks to Scott Hanselman for the [suggestion and instructions on switching the git default branch from master to main](https://www.hanselman.com/blog/EasilyRenameYourGitDefaultBranchFromMasterToMain.aspx). This repository transitioned to using `main` as its branch on 20
+20-06-14.
 
+Legal
+-----
 Copyright (C) 2019 by The Obscure Organization
 
 MIT licensed. See [LICENSE](LICENSE) for details.
