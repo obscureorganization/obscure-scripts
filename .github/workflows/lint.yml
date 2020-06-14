@@ -1,4 +1,4 @@
-name: Shellcheck Lint
+name: Shellcheck
 
 on:
   push:
@@ -11,7 +11,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Hello, GitHub actions!
-      run: echo Hello, world!
     - name: ShellCheck
       uses: ludeeus/action-shellcheck@0.2.1
