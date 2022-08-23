@@ -5,6 +5,20 @@
 # failures of August 2022. Installs packages.
 set -euo pipefail
 
+DEBUG=${DEBUG:-false}
+
+# Thanks https://stackoverflow.com/a/17805088
+$DEBUG && export PS4='${LINENO}: ' && set -x
+
+# http://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Thanks https://askubuntu.com/a/15856
+if [[ $EUID -ne 0 ]]; then
+    echo "This script must be run as root"
+    exit 1
+fi
+
 config_network=true
 primary_int=enp89s0
 primary_int=$primary_int
@@ -40,10 +54,15 @@ firewall_services_allow='
 dns
 http
 https
+imap
+imaps
+pop3
+pop3s
 smtp
 smtp-submission
 smtps
 '
+
 
 # Install packages
 #shellcheck disable SC2086
@@ -51,6 +70,8 @@ dnf -y install $packages
 
 #shellcheck disable SC2086
 dnf -y install $extra_packages
+
+dnf -y --enablerepo=crb install libtirpc-devel
 
 # Configure network
 
@@ -68,12 +89,23 @@ systemctl restart firewalld
 for svc in $firewall_services_allow; do
     firewall-cmd --zone=public --add-service "$svc"
 done
+firewall-cmd --zone=public --add-port 10110/tcp
+firewall-cmd --zone=public --add-port 10143/tcp
+firewall-cmd --zone=public --add-port 10993/tcp
+firewall-cmd --zone=public --add-port 10995/tcp
+firewall-cmd --zone=public --add-masquerade
+firewall-cmd --zone=public --add-forward-port=port=10110:proto=tcp:toport=110
+firewall-cmd --zone=public --add-forward-port=port=10143:proto=tcp:toport=143
+firewall-cmd --zone=public --add-forward-port=port=10993:proto=tcp:toport=993
+firewall-cmd --zone=public --add-forward-port=port=10995:proto=tcp:toport=995
+
 firewall-cmd --runtime-to-permanent
 
 # Start services
 services='
 httpd
 named
+saslauthd
 sendmail
 spamassassin
 '
@@ -84,3 +116,6 @@ done
 
 # Adjust selinux
 setsebool -P httpd_enable_homedirs true
+
+# Relink mail spool files
+"$DIR/mail-symlink-inbox.sh"
