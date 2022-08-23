@@ -44,8 +44,10 @@ smtps
 '
 
 # Install packages
+#shellcheck disable SC2086
 dnf -y install $packages
 
+#shellcheck disable SC2086
 dnf -y install $extra_packages
 
 # Configure network
@@ -74,8 +76,8 @@ sendmail
 spamassassin
 '
 for svc in $services; do
-	systemctl enable $svc
-	systemctl start $svc
+	systemctl enable "$svc"
+	systemctl start "$svc"
 done
 
 # Adjust selinux
