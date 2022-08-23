@@ -18,8 +18,10 @@ epel-release
 git
 httpd
 httpd-tools
+krb5-devel
 mod_ssl
 nmstate
+pam-devel
 php
 postgresql
 postgresql-server
