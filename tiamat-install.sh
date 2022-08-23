@@ -13,6 +13,7 @@ packages='
 bind
 bind-chroot
 dovecot
+clamav
 epel-release
 git
 httpd
@@ -24,12 +25,23 @@ postgresql
 postgresql-server
 procmail
 sendmail
+sendmail-cf
+spamassassin
+s-nail
 whois
 '
 
 extra_packages='
 alpine'
 
+firewall_services_allow='
+dns
+http
+https
+smtp
+smtp-submission
+smtps
+'
 
 # Install packages
 dnf -y install $packages
@@ -49,15 +61,17 @@ fi
 
 # Fix up firewall
 systemctl restart firewalld
-firewall-cmd --zone=public --add-service dns
-firewall-cmd --zone=public --add-service http
-firewall-cmd --zone=public --add-service https
+for svc in $firewall_services_allow; do
+    firewall-cmd --zone=public --add-service "$svc"
+done
 firewall-cmd --runtime-to-permanent
 
 # Start services
 services='
 httpd
 named
+sendmail
+spamassassin
 '
 for svc in $services; do
 	systemctl enable $svc
