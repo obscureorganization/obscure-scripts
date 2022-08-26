@@ -34,7 +34,15 @@ httpd
 httpd-tools
 krb5-devel
 mod_ssl
+nagios-plugins
+nagios-plugins-disk
+nagios-plugins-load
+nagios-plugins-mysql
+nagios-plugins-pgsql
+nagios-plugins-procs
+nagios-plugins-smtp
 nmstate
+nrpe
 pam-devel
 php
 postgresql
