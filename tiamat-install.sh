@@ -33,7 +33,10 @@ git
 httpd
 httpd-tools
 krb5-devel
+mariadb
+mariadb-server
 mod_ssl
+mutt
 nagios-plugins
 nagios-plugins-disk
 nagios-plugins-load
@@ -52,6 +55,7 @@ sendmail
 sendmail-cf
 spamassassin
 s-nail
+tcsh
 whois
 '
 
@@ -112,7 +116,9 @@ firewall-cmd --runtime-to-permanent
 # Start services
 services='
 httpd
+mariadb
 named
+postgresql
 saslauthd
 sendmail
 spamassassin
