@@ -28,6 +28,7 @@ bind
 bind-chroot
 dovecot
 clamav
+emacs
 epel-release
 git
 httpd
