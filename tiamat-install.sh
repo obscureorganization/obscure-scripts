@@ -45,10 +45,16 @@ nagios-plugins-mysql
 nagios-plugins-pgsql
 nagios-plugins-procs
 nagios-plugins-smtp
+nagios-plugins-swap
+nagios-plugins-users
 nmstate
 nrpe
 pam-devel
 php
+php-gd
+php-intl
+php-pecl-zip
+php-pgsql
 postgresql
 postgresql-server
 procmail
@@ -78,10 +84,10 @@ smtps
 
 
 # Install packages
-#shellcheck disable SC2086
+#shellcheck disable=SC2086
 dnf -y install $packages
 
-#shellcheck disable SC2086
+#shellcheck disable=SC2086
 dnf -y install $extra_packages
 
 dnf -y --enablerepo=crb install libtirpc-devel

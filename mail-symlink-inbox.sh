@@ -14,7 +14,7 @@ DEBUG=${DEBUG:-false}
 # listed in Autodetection in 
 # https://doc.dovecot.org/configuration_manual/mail_location/
 cd /home
-ls -d */mail | while read mailuser; do
+find . -maxdepth 2 -type d -name mail | while read mailuser; do
     user=$(cut -d/ -f1 <<<"$mailuser")
     $DEBUG && echo "$user"
     mail="/home/$user/mail"
