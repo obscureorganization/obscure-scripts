@@ -27,7 +27,9 @@ packages='
 bind
 bind-chroot
 dovecot
+certbot
 clamav
+cmake
 emacs
 epel-release
 git
@@ -58,10 +60,12 @@ php-pgsql
 postgresql
 postgresql-server
 procmail
+certbot python3-certbot-apache
 sendmail
 sendmail-cf
 spamassassin
 s-nail
+sysstat
 tcsh
 whois
 '
@@ -137,6 +141,8 @@ done
 
 # Adjust selinux
 setsebool -P httpd_enable_homedirs true
+setsebool -P httpd_can_network_connect_db true
+setsebool -P httpd_can_sendmail true
 
 # Relink mail spool files
 "$DIR/mail-symlink-inbox.sh"
