@@ -36,6 +36,7 @@ git
 httpd
 httpd-tools
 krb5-devel
+links
 mariadb
 mariadb-server
 mod_ssl
