@@ -15,6 +15,7 @@ A collection of scripts from [The Obscure Organization](https://www.obscure.org)
 * [ssh-add-ramdisk.sh](ssh-add-ramdisk.sh) - Keep your SSH keys on a USB key, but load them into a RAMDisk on macOS or Linux - so you don't have to keep permanent copies of the SSH keys on the systems you physically use, which is useful sometimes.
 * [ssh-env.sh](ssh-env.sh) - Use to help reconnect managed terminal sessions (think `screen` or `tmux`) terminals to your SSH key agent via environment manipulation.
 * [uptimerobot-firewall-update.sh](uptimerobot-firewall-update.sh) - Update firewall entries that allow [uptimerobot.com](https://www.uptimerobot.com/) to check otherwise resticted services. Uptime Robot is free and is suitable for small-scale monitoring as a primary service or as a secondary monitor that watches your primary monitoring system and most critical services.
+* [tiamat-setup.sh](tiamat-setup.sh) - Set up packages and more on tiamat.obscure.org (emergency recovery script)
 * [watch-filevault-setup.sh](wuhatch-filevault-setup.sh) - Watch and log the filevault encryption process, which can take a really long time on an older Macintosh.
 
 Acknowledgements
