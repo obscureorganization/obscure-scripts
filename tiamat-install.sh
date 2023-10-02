@@ -41,6 +41,7 @@ httpd
 httpd-tools
 krb5-devel
 libedit-devel
+libtirpc-devel
 links
 man2html
 mariadb
@@ -111,8 +112,7 @@ dnf -y install $packages
 #shellcheck disable=SC2086
 dnf -y install $extra_packages
 
-dnf -y --enablerepo=crb install libtirpc-devel
-
+dnf -y install "$DIR/rpmbuild/RPMS/x86_64/ledger-3.2.1-13.el9.x86_64.rpm"
 # Configure network
 
 if "$config_network"; then
