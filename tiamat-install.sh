@@ -26,20 +26,27 @@ primary_int=$primary_int
 packages='
 bind
 bind-chroot
-dovecot
+boost-devel
 certbot
+certbot python3-certbot-apache
 clamav
 cmake
+dovecot
+doxygen
 emacs
 epel-release
 git
+gmp-devel
 httpd
 httpd-tools
 krb5-devel
+libedit-devel
 links
+man2html
 mariadb
 mariadb-server
 mod_ssl
+mpfr-devel
 mutt
 nagios-plugins
 nagios-plugins-disk
@@ -61,13 +68,18 @@ php-pgsql
 postgresql
 postgresql-server
 procmail
-certbot python3-certbot-apache
 sendmail
 sendmail-cf
-spamassassin
 s-nail
+spamassassin
 sysstat
 tcsh
+texinfo
+texinfo-tex
+texlive-cm-super
+texlive-ec
+texlive-eurosym
+utf8cpp-devel
 whois
 '
 
@@ -89,6 +101,10 @@ smtps
 
 
 # Install packages
+# T
+# Thanks https://linux.how2shout.com/enable-crb-code-ready-builder-powertools-in-almalinux-9/
+# for the hint on how to enable crb to get texinfo and friends
+dnf config-manager --set-enabled crb
 #shellcheck disable=SC2086
 dnf -y install $packages
 
