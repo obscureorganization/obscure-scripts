@@ -21,7 +21,6 @@ fi
 
 config_network=true
 primary_int=enp89s0
-primary_int=$primary_int
 
 packages='
 bind
@@ -31,6 +30,7 @@ certbot
 certbot python3-certbot-apache
 clamav
 cmake
+dnf-automatic
 dovecot
 doxygen
 emacs
@@ -85,7 +85,8 @@ whois
 '
 
 extra_packages='
-alpine'
+alpine
+shellcheck'
 
 firewall_services_allow='
 dns
@@ -112,7 +113,15 @@ dnf -y install $packages
 #shellcheck disable=SC2086
 dnf -y install $extra_packages
 
+# Install ledger (built from SRPMS)
 dnf -y install "$DIR/rpmbuild/RPMS/x86_64/ledger-3.2.1-13.el9.x86_64.rpm"
+
+# Configure dnf-automatic
+if [[ ! -f /etc/dnf/automatic.conf.dist ]]; then
+    cp -a /etc/dnf/automatic.conf /etc/dnf/automatic.conf.dist
+fi
+sed -i'' -e 's/root@example.com/root@obscure.org/' /etc/dnf/automatic.conf
+
 # Configure network
 
 if "$config_network"; then
