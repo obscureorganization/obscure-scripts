@@ -86,7 +86,9 @@ whois
 
 extra_packages='
 alpine
-shellcheck'
+ntfs-3g
+shellcheck
+tidy'
 
 firewall_services_allow='
 dns
