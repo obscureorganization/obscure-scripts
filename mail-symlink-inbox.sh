@@ -4,6 +4,9 @@ set -euo pipefail
 
 DEBUG=${DEBUG:-false}
 
+# Thanks https://stackoverflow.com/a/17805088
+$DEBUG && export PS4='${LINENO}: ' && set -x
+
 # Symlink /home/user/mail/inbox to /var/spol/mail/inbox
 # This lets dovecot autodetect the ~/mail directory - needed
 # as part of the emergency migration to Obscure's new server.
@@ -15,8 +18,9 @@ DEBUG=${DEBUG:-false}
 # https://doc.dovecot.org/configuration_manual/mail_location/
 cd /home
 find . -maxdepth 2 -type d -name mail | while read -r mailuser; do
-    user=$(cut -d/ -f1 <<<"$mailuser")
-    $DEBUG && echo "$user"
+    $DEBUG && echo -n "mailuser:$mailuser"
+    user=$(cut -d/ -f2 <<<"$mailuser")
+    $DEBUG && echo "user:$user"
     mail="/home/$user/mail"
     inboxlink="$mail/inbox"
     varspool="/var/spool/mail/$user"
@@ -28,3 +32,4 @@ find . -maxdepth 2 -type d -name mail | while read -r mailuser; do
         $DEBUG && echo "$user did not qualify"
     fi
 done
+exit 0
