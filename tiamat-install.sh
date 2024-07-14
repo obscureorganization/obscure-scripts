@@ -154,6 +154,7 @@ firewall-cmd --runtime-to-permanent
 
 # Start services
 services='
+dnf-automatic.timer
 httpd
 mariadb
 named
