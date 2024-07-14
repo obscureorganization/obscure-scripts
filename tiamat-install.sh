@@ -29,6 +29,9 @@ boost-devel
 certbot
 certbot python3-certbot-apache
 clamav
+clamav-milter
+clamav-update
+clamd
 cmake
 dnf-automatic
 dovecot
@@ -46,6 +49,7 @@ links
 man2html
 mariadb
 mariadb-server
+mailman3
 mod_ssl
 mpfr-devel
 mutt
@@ -60,6 +64,9 @@ nagios-plugins-swap
 nagios-plugins-users
 nmstate
 nrpe
+openarc
+opendkim
+opendkim-tools
 pam-devel
 php
 php-gd
@@ -154,9 +161,14 @@ firewall-cmd --runtime-to-permanent
 
 # Start services
 services='
+clamd@service
+clamav-milter
 httpd
+mailman3
 mariadb
 named
+openarc
+opendkim
 postgresql
 saslauthd
 sendmail
