@@ -163,6 +163,7 @@ firewall-cmd --runtime-to-permanent
 services='
 clamd@service
 clamav-milter
+dnf-automatic.timer
 httpd
 mailman3
 mariadb
