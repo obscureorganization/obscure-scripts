@@ -4,7 +4,7 @@ Obscure Scripts
 A collection of scripts from [The Obscure Organization](https://www.obscure.org) - a public access UNIX system in continuous use since 1995.
 
 * [blockip.sh](blockip.sh) - Use iptables to temporarily block an IP addreess or CIDR block
-* [btidy.sh](btidy.sh) - Use [HTML tidy]() but only versus the body of an HTML file. Useful for filtering fragments of HTML files, or for using in vim (`:'a,'b ! btidy -wrap 0 -i -asxml`)
+* [btidy.sh](btidy.sh) - Use [HTML tidy](https://www.html-tidy.org/) but only versus the body of an HTML file. Useful for filtering fragments of HTML files, or for using in vim (`:'a,'b ! btidy -wrap 0 -i -asxml`)
 * [cloud-init-centos-7-ipv6.yml](cloud-init-centos-7-ipv6.yml) - Use in instance data for CentOS 7.x EC2 servers that are having trouble getting an IPv6 default route. See also
 [cloud-init-centos-7.6-ipv4-ena.yml](cloud-init-centos-7.6-ipv4-ena.yml) and [cloud-init-centos-7.6-ipv6-ena.yml](cloud-init-centos-7.6-ipv4-ena.yml)
 * [icinga2-graceful.sh](icinga2-graceful.sh) - Check the validity of icinga2 system configuration files, then restart it only if the configuration is ok.

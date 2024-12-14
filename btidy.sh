@@ -3,6 +3,7 @@
 # btidy.sh
 #
 # Use HTML tidy on just the body of an HTML file.
+# See https://www.html-tidy.org/ for documentation on tidy.
 #
 # Usage:
 #     btidy <filename> [options] ...
@@ -28,16 +29,23 @@ function finish {
 }
 trap finish EXIT
 
-echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">' >> "$TMPFILE"
-
-echo "<html><head><title>invisible</title></head><body>" >> "$TMPFILE"
-FILE=$1
-shift
+# Nice, thanks https://www.cyberciti.biz/faq/linux-unix-bsd-apple-osx-bash-get-last-argument/
+FILE="${BASH_ARGV[0]}"
+#FILE=${1:-/dev/stdin}
+# If a file is specified as the first CLI option, consume the first parameter
+if [ -f "$FILE" ]; then
+    # tricksy - thanks https://unix.stackexchange.com/a/273531
+    ARGS="${@:1:$#-1}"
+fi
+cat <<EOF > "$TMPFILE"
+<!doctype html>
+<html><head><title>invisible</title></head>
+<body>
+EOF
 cat "$FILE" >> "$TMPFILE"
 # shellcheck disable=SC2048,SC2086
-tidy -q --show-body-only y $* "$TMPFILE"
-if [ $? -lt 2 ] && echo "$*" | grep -- '-m' > /dev/null; then
+tidy -q --show-body-only y $ARGS "$TMPFILE"
+if [ $? -lt 2 ] && echo "$ARGS" | grep --quiet -- '-m'; then
     cat "$TMPFILE" > "$FILE"
 fi
 #echo "grep exit: $?"
