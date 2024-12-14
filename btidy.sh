@@ -5,8 +5,16 @@
 # Use HTML tidy on just the body of an HTML file.
 # See https://www.html-tidy.org/ for documentation on tidy.
 #
+# When used as a filter, this will enclose each line of tidy output in
+# an HTML comment.
+#
 # Usage:
-#     btidy <filename> [options] ...
+#     ./btidy.sh <filename> [options] ...
+#
+#     # From vi family editors, assuming btidy.sh is in your path:
+#     :% ! btidy.sh [options]
+#     # vi example in a marked section:
+#     :'a,'b ! btidy.sh -i
 #
 # Copyright (C) 2024 by The Obscure Organization
 #
