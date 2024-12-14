@@ -21,31 +21,62 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+DEBUG=${DEBUG:-false}
+
+# Thanks https://stackoverflow.com/a/17805088
+$DEBUG && export PS4='${LINENO}: ' && set -x
+
 TMPFILE=$(mktemp /tmp/btidy.XXXXXX)
+TMPERR=$(mktemp /tmp/btidy-err.XXXXXX)
+TMPOUT=$(mktemp /tmp/btidy-out.XXXXXX)
 
 # remove tempfile on exit
 function finish {
-  rm -f "$TMPFILE"
+  rm -f "$TMPFILE" "$TMPERR"
 }
 trap finish EXIT
 
 # Nice, thanks https://www.cyberciti.biz/faq/linux-unix-bsd-apple-osx-bash-get-last-argument/
-FILE="${BASH_ARGV[0]}"
-#FILE=${1:-/dev/stdin}
-# If a file is specified as the first CLI option, consume the first parameter
-if [ -f "$FILE" ]; then
+FILE="${BASH_ARGV[0]:-}"
+if [ -z "$FILE" ]; then
+    ARGS="$*"
+    FILE=/dev/stdin
+elif [ -f "$FILE" ]; then
+    # If a file is specified as the last CLI option, consume the last parameter
     # tricksy - thanks https://unix.stackexchange.com/a/273531
+    # shellcheck disable=2124
     ARGS="${@:1:$#-1}"
+else
+    ARGS="$*"
+    FILE=/dev/stdin
 fi
+
 cat <<EOF > "$TMPFILE"
 <!doctype html>
 <html><head><title>invisible</title></head>
 <body>
 EOF
 cat "$FILE" >> "$TMPFILE"
+set +e
 # shellcheck disable=SC2048,SC2086
-tidy -q --show-body-only y $ARGS "$TMPFILE"
-if [ $? -lt 2 ] && echo "$ARGS" | grep --quiet -- '-m'; then
-    cat "$TMPFILE" > "$FILE"
+tidy -q --show-body-only y $ARGS "$TMPFILE" > "$TMPOUT" 2>"$TMPERR"
+EXITCODE=$?
+set -e
+
+if [[ "$EXITCODE" -gt 0 ]]; then
+    echo "WARNING: tidy had non-zero exit $EXITCODE" >> "$TMPERR"
 fi
-#echo "grep exit: $?"
+if [[ "$FILE" != "/dev/stdin"  ]] \
+    && echo "$ARGS" | grep --quiet -E -- '-m|--modify'
+then
+    cat "$TMPFILE" > "$FILE"
+else
+    if [[ -s "$TMPERR" ]]; then
+        TV="$(tidy --version)"
+        printf '<!-- %s -->\n' "$TV"
+        sed 's/^\(.*\)$/<!-- \1 -->/' "$TMPERR"
+    fi
+    cat "$TMPOUT"
+fi
+
+exit $EXITCODE
