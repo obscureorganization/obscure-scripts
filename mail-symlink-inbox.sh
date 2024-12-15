@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 # mail-symlink-inbox.sh
+#
+# Copyright (C) 2022 The Obscure Organization
+#
+# MIT licensed. See the LICENSE file for details.
+
 set -euo pipefail
 
 DEBUG=${DEBUG:-false}
