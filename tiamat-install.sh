@@ -46,10 +46,12 @@ krb5-devel
 libedit-devel
 libtirpc-devel
 links
+mailman3
+python3-mailman-web
+python3-mailman-hyperkitty
 man2html
 mariadb
 mariadb-server
-mailman3
 mod_ssl
 mpfr-devel
 mutt
@@ -76,10 +78,12 @@ php-pgsql
 postgresql
 postgresql-server
 procmail
+s-nail
+selinux-policy-devel
 sendmail
 sendmail-cf
-s-nail
 spamassassin
+sysbench
 sysstat
 tcsh
 texinfo
@@ -109,7 +113,6 @@ smtp
 smtp-submission
 smtps
 '
-
 
 # Install packages
 # T
@@ -180,10 +183,59 @@ for svc in $services; do
 	systemctl start "$svc"
 done
 
+# fix up smrsh so custom forward program will work with sendmail
+rm -f /etc/smrsh/forward-spamfiltered
+ln -s /usr/local/bin/forward-spamfiltered /etc/smrsh/forward-spamfiltered
+
+
 # Adjust selinux
 setsebool -P httpd_enable_homedirs true
 setsebool -P httpd_can_network_connect_db true
 setsebool -P httpd_can_sendmail true
+
+selinux_mods='my-phpfpm
+sendmail-spamc'
+
+cd /root
+cat > my-phpfpm.te <<EOF
+module my-phpfpm 1.1;
+
+require {
+	type httpd_t;
+	type pop_port_t;
+	class tcp_socket name_connect;
+}
+
+#============= httpd_t ==============
+
+#!!!! This avc is allowed in the current policy
+allow httpd_t pop_port_t:tcp_socket name_connect;
+EOF
+
+cat > sendmail-spamc.te <<EOF
+module sendmail-spamc 1.0;
+
+require {
+	type sendmail_t;
+	type spamc_exec_t;
+	class file { execute execute_no_trans getattr open read map };
+}
+
+#============= sendmail_t ==============
+allow sendmail_t spamc_exec_t:file { execute execute_no_trans getattr open read };
+
+#!!!! This avc can be allowed using the boolean 'domain_can_mmap_files'
+allow sendmail_t spamc_exec_t:file map;
+EOF
+
+ls -l
+
+for mod in $selinux_mods; do
+    make -f /usr/share/selinux/devel/Makefile "$mod.pp"
+    semodule -i "$mod.pp"
+done
+
+cd -
 
 # Relink mail spool files
 "$DIR/mail-symlink-inbox.sh"

@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# forward-spamfiltered
+#
+# Let the sysadmin decide whether to call spamc or spamassassin or whatever
+#
+# Let's call spamc by default, passing any user parameters in
+#    exec /usr/bin/spamc $*
+# Maybe sometimes we want to call spamassassin without doing the proxy
+#    exec /usr/bin/spamassassin $*
+
+# Set bash unofficial strict mode
+set -euo pipefail
+IFS=$'\n\t'
+
+FACILITY=forward-spamfiltered
+logger -p mail.info -d "$FACILITY" \
+    "considering: mail to '$*'"
+TMPFILE=$(mktemp -t spam-forward.XXXXXXXXX) || exit 1
+cat > "$TMPFILE"
+logger -p mail.info -d "$FACILITY" \
+    "$(grep ^From: "$TMPFILE")"
+if SPAM_SCORE=$(/usr/bin/spamc -c < "$TMPFILE" 2>&1); then
+#if [ $RETVAL = 0 ]; then
+    logger -p mail.info -d "$FACILITY" \
+        "forward: mail to '$*' had SpamAssassin score of $SPAM_SCORE" 
+    /usr/sbin/sendmail -oi  "$@" < "$TMPFILE"
+else
+    logger -p mail.info -d \
+        "$FACILITY" "discard: mail to '$*' had SpamAssassin score of $SPAM_SCORE" 
+fi
+rm -f "$TMPFILE"
+exit 0
