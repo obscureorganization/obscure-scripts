@@ -5,6 +5,10 @@
 # restart those subsystems.
 # 
 # Configure this in /etc/sysconfig/certbot
+#
+# Copyright (C) 2022 The Obscure Organization
+#
+# MIT licensed. See the LICENSE file for details.
 
 # Set unofficial bash strict mode http://redsymbol.net/articles/unofficial-bash-strict-mode/
 set -euo pipefail
