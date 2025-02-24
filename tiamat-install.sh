@@ -79,6 +79,7 @@ postgresql
 postgresql-server
 procmail
 s-nail
+sassc
 selinux-policy-devel
 sendmail
 sendmail-cf
