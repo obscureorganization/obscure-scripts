@@ -40,6 +40,7 @@ TMPOUT=$(mktemp /tmp/btidy-out.XXXXXX)
 
 # remove tempfile on exit
 function finish {
+  # shellcheck disable=2317
   rm -f "$TMPFILE" "$TMPERR"
 }
 trap finish EXIT
