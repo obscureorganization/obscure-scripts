@@ -1,5 +1,4 @@
-Obscure Scripts
-===============
+# Obscure Scripts
 
 A collection of scripts from [The Obscure Organization](https://www.obscure.org) - a public access UNIX system in continuous use since 1995.
 
@@ -39,8 +38,7 @@ From vi family editors, assuming btidy.sh is in your path:
 
 ## cloud-init-centos-7-ipv6.yml
 
-[cloud-init-centos-7-ipv6.yml](cloud-init-centos-7-ipv6.yml) - Use in instance data for CentOS 7.x EC2 servers that are having trouble getting an IPv6 default route. See also
-[cloud-init-centos-7.6-ipv4-ena.yml](cloud-init-centos-7.6-ipv4-ena.yml) and [cloud-init-centos-7.6-ipv6-ena.yml](cloud-init-centos-7.6-ipv4-ena.yml)
+[cloud-init-centos-7-ipv6.yml](cloud-init-centos-7-ipv6.yml) - Use in instance data for CentOS 7.x EC2 servers that are having trouble getting an IPv6 default route. See also [cloud-init-centos-7.6-ipv4-ena.yml](cloud-init-centos-7.6-ipv4-ena.yml) and [cloud-init-centos-7.6-ipv6-ena.yml](cloud-init-centos-7.6-ipv4-ena.yml)
 
 ### Description
 This cloud-init configuration is intended for older CentOS 7.x EC2 instances that are having trouble getting an IPv6 default route. It includes specific configurations for the ENA adapter and other settings.
